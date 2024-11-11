@@ -44,9 +44,10 @@ const MovingText: React.FC<MovingTextProp> = ({
   });
   return (
     <Animated.Text numberOfLines={1} style={ [animatedStyle , style, shouldAnimate && {
-        width:190,
+        width:150,
         paddingLeft:16,
-        marginLeft:8
+        marginLeft:8,
+        paddingStart:16
     } ] }>
      {text}
     </Animated.Text>

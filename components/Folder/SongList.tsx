@@ -8,15 +8,17 @@ import {
   heightPercentageToDP as hp,
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
-
+interface SongListProps {
+  item: SongCategory;
+}
 const ItemSeparator = () => <View style={{ width: 20 }} />; 
-const SongList:React.FC<SongCategory> = ({item}) => {
+const SongList:React.FC<SongListProps> = ({item}) => {
   return (
     <View style={{ backgroundColor: "transparent", flex:1, paddingLeft:wp(2)}}>
      <Text style={{ color: Colors.textPrimary , fontSize:30 , fontWeight:"700" , padding:5 }}>{item.title}</Text>
       <FlatList
         data={item.songs}
-        renderItem={SongCard}
+        renderItem={({item}) => <SongCard item={item}/>}
         ItemSeparatorComponent={ItemSeparator}
         horizontal={true}
         showsHorizontalScrollIndicator={false}

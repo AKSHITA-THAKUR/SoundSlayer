@@ -3,6 +3,8 @@ import { Colors } from "@/constants/Colors";
 import { useNavigation } from "expo-router";
 import { router } from "expo-router";
 import { useState } from "react";
+import { useContext } from "react";
+import { currentSongContext } from "@/context/context";
 import { Ionicons  , AntDesign} from "@expo/vector-icons";
 import { Image } from "expo-image";
 import { useSharedValue } from "react-native-reanimated";
@@ -16,6 +18,7 @@ import {
 } from "react-native-responsive-screen";
 
 const PlayerScreen = () => {
+  const {Playing} = useContext(currentSongContext);
   const [pause , setPause] = useState<boolean>(false);
   const [liked, isLiked] = useState<boolean>(false);
   const navigation = useNavigation();
@@ -34,7 +37,7 @@ const PlayerScreen = () => {
       <View style={{ alignItems: "center", marginTop: 60 }}>
         <Image
           style={{ height: hp(40), width: wp(70), borderRadius: 20 }}
-          source={require("../assets/images/Song1.png")}
+          source={{uri: Playing.imageUrl}}
         />
       </View>
       <View
@@ -53,10 +56,10 @@ const PlayerScreen = () => {
               fontWeight: "700",
             }}
           >
-            Love me like you do
+           {Playing.songTitle}
           </Text>
           <Text style={{ fontSize: 20, color: Colors.textSecndary }}>
-            Alan Walker
+            {Playing.artist}
           </Text>
         </View>
         <View>

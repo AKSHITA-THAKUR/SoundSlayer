@@ -10,8 +10,10 @@ import CurrentPlayer from "@/components/CurrentPlayer";
 import Header from "@/components/Folder/Header";
 import { SongCategory } from "@/data/songsWithCategory";
 import TrackPlayer from "react-native-track-player";
-
+import { useContext } from "react";
+import { currentSongContext } from "@/context/context";
 export default function Index() {
+  const {Playing} = useContext(currentSongContext);
   return (
     <View
       style={{
@@ -23,10 +25,11 @@ export default function Index() {
       <Header />
       <FlatList
         data={songsWithCategory}
-        renderItem={SongList}
+        renderItem={({item})=> <SongList item={item}/>}
         contentContainerStyle={{ paddingBottom: 400 }}
       />
-      <CurrentPlayer />
+      {Playing.songTitle ? <CurrentPlayer /> : null}
+     
     </View>
   );
 }

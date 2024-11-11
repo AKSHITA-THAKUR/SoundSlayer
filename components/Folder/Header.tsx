@@ -22,7 +22,7 @@ export default function Header() {
         <TouchableOpacity>
           <Ionicons name="menu" size={32} color="white" />
         </TouchableOpacity>
-        <TouchableOpacity  onPress={()=>navigation.navigate("LikeScreen") }>
+        <TouchableOpacity  >
       
           <Ionicons name="heart-outline" size={32} color="white" />
         </TouchableOpacity>
