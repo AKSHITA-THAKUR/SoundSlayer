@@ -8,7 +8,7 @@ import React from "react";
 import { router } from "expo-router";
 import { useContext } from "react";
 import { currentSongContext } from "@/context/context";
-import { useState } from "react";
+import { useState , useEffect } from "react";
 import MovingText from "./Folder/MovingText";
 import { Ionicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
@@ -21,12 +21,14 @@ const CurrentPlayer = () => {
   const { Playing } = useContext(currentSongContext);
   const navigation = useNavigation();
   const [pause, setPause] = useState<boolean>(false);
+  const [sound, setSound] = useState();
   const progress = useSharedValue(30);
   const min = useSharedValue(0);
   const max = useSharedValue(100);
   const OpenPage = () => {
     router.push("/PlayerScreen");
   };
+  
   return (
     <View>
       <View>
