@@ -18,13 +18,18 @@ import {
 } from "react-native-responsive-screen";
 
 const PlayerScreen = () => {
-  const { Playing } = useContext(currentSongContext);
+  const {
+    Playing,
+    isPlaying,
+    setIsPlaying,
+    positionMillis,
+    setPositionMillis,
+  } = useContext(currentSongContext);
   const [pause, setPause] = useState<boolean>(true);
   const [liked, isLiked] = useState<boolean>(false);
   const [Sound, setSound] = useState<any>(null);
 
   const [durationMillis, setDurationMillis] = useState<number>(0);
-  const [positionMillis, setPositionMillis] = useState<number>(0);
 
   const progress = useSharedValue(0);
   const min = useSharedValue(0);
@@ -37,10 +42,10 @@ const PlayerScreen = () => {
       console.log("Loading Sound...");
       const { sound: newSound } = await Audio.Sound.createAsync(
         { uri: Playing.songUrl },
-        { shouldPlay: true }
+        { shouldPlay: true, positionMillis }
       );
       setSound(newSound);
-
+      setIsPlaying(true);
       newSound.setOnPlaybackStatusUpdate((status) => {
         if (status.isLoaded) {
           setDurationMillis(status.durationMillis || 0);
@@ -54,40 +59,56 @@ const PlayerScreen = () => {
   };
 
   const togglePlayPause = async () => {
-    if (pause) {
-      await playSound();
-    } else if (Sound) {
-      await Sound.pauseAsync();
+    if (isPlaying) {
+      await Sound?.pauseAsync();
+      setIsPlaying(false);
     } else {
-      await playSound();
+      await Sound?.playAsync();
+      setIsPlaying(true);
     }
-    setPause(!pause);
   };
 
   useEffect(() => {
-    return Sound
-      ? () => {
-          console.log("unloading the sound");
-          Sound.unloadAsync();
-        }
-      : undefined;
-  }, [Sound]);
+    playSound();
 
-  // Function to format time from milliseconds to minute and second format
+    return () => {
+      if (Sound) {
+        Sound.unloadAsync();
+      }
+    };
+  }, [Playing.songUrl]);
+  const goBack = () => {
+    if (Sound) Sound.pauseAsync();
+    setIsPlaying(false);
+    router.back();
+  };
   const formatTime = (millis: number) => {
     const minutes = Math.floor(millis / 60000);
     const seconds = Math.floor((millis % 60000) / 1000);
     return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
   };
 
+  const seekForward = async () => {
+    if (Sound) {
+      const newPosition = positionMillis + 5000; 
+      await Sound.setPositionAsync(newPosition);
+      setPositionMillis(newPosition); // Update shared state
+    }
+  };
+
+
+  const seekBackward = async () => {
+    if (Sound) {
+      const newPosition = Math.max(0, positionMillis - 5000); 
+      await Sound.setPositionAsync(newPosition);
+      setPositionMillis(newPosition); 
+    }
+  };
   return (
     <View style={styles.container}>
       <StatusBar style="light" />
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => router.back()}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={goBack}>
           <Ionicons name="arrow-back" size={32} color="white" />
         </TouchableOpacity>
         <Text style={styles.title}>Playing Now</Text>
@@ -160,24 +181,24 @@ const PlayerScreen = () => {
         }}
       >
         <TouchableOpacity>
-          <AntDesign name="stepbackward" size={44} color={Colors.iconPrimary} />
+          <AntDesign name="stepbackward" size={44} color={Colors.iconPrimary}  onPress={seekBackward}/>
         </TouchableOpacity>
         <TouchableOpacity onPress={togglePlayPause}>
-          {pause ? (
-            <Ionicons
-              name="play-circle-outline"
-              size={48}
-              color={Colors.iconPrimary}
-            />
-          ) : (
+          {isPlaying ? (
             <Ionicons
               name="pause-circle-outline"
               size={48}
               color={Colors.iconPrimary}
             />
+          ) : (
+            <Ionicons
+              name="play-circle-outline"
+              size={48}
+              color={Colors.iconPrimary}
+            />
           )}
         </TouchableOpacity>
-        <TouchableOpacity>
+        <TouchableOpacity onPress={seekForward}>
           <AntDesign name="stepforward" size={44} color={Colors.iconPrimary} />
         </TouchableOpacity>
       </View>

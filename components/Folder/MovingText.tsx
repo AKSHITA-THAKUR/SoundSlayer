@@ -32,7 +32,7 @@ const MovingText: React.FC<MovingTextProp> = ({
       withRepeat(
         withTiming(-textWidth, { duration: 5000, easing: Easing.linear }),
         -1, //Means infinite time translation
-       // should reversed
+       
       )
     );
   }, [text , translateX , animatedThreshold,textWidth]);

@@ -1,5 +1,5 @@
 import { createContext } from "react";
-
+import { Audio } from "expo-av";
 interface SongInfo {
   imageUrl: string;
   artist: string;
@@ -10,6 +10,11 @@ interface SongInfo {
 interface CurrentSongContextType {
   Playing: SongInfo;
   setPlaying: React.Dispatch<React.SetStateAction<SongInfo>>;
+  positionMillis: number; 
+  setPositionMillis: React.Dispatch<React.SetStateAction<number>>; 
+  isPlaying: boolean;
+  setIsPlaying: React.Dispatch<React.SetStateAction<boolean>>;
+
 }
 
 export const currentSongContext = createContext<CurrentSongContextType>({
@@ -19,5 +24,10 @@ export const currentSongContext = createContext<CurrentSongContextType>({
     songTitle: "",
     songUrl: ""
   },
-  setPlaying: () => {} 
+  setPlaying: () => {} ,
+  positionMillis: 0, 
+  setPositionMillis: () => {} ,
+  isPlaying: false,  
+  setIsPlaying: () => {},
+
 });

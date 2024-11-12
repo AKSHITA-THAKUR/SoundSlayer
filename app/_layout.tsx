@@ -17,9 +17,11 @@ export default function RootLayout() {
     songTitle: "",
     songUrl: ""
   });
+  const [positionMillis, setPositionMillis] = useState<number>(0);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   return (
-    <currentSongContext.Provider value={{ Playing, setPlaying }}>
+    <currentSongContext.Provider value={{ Playing, setPlaying , positionMillis ,  setPositionMillis , isPlaying , setIsPlaying  }}>
     <GestureHandlerRootView style={{ flex: 1 }}>
     <Stack>
       <Stack.Screen name="index" options={{headerShown:false}}/>
