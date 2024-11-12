@@ -12,7 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
 import {
   heightPercentageToDP as hp,
-  widthPercentageToDP,
+  widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
 import { Audio } from "expo-av";
 
@@ -41,13 +41,13 @@ const CurrentPlayer = () => {
 
   const loadAndPlaySound = async () => {
     if (song) {
-      await song.unloadAsync(); 
+      await song.unloadAsync();
     }
-
+    setPositionMillis(0); //ADD pposition millis
     console.log("Loading Sound...");
     const { sound: newSound } = await Audio.Sound.createAsync(
       { uri: Playing.songUrl },
-      { shouldPlay: true, positionMillis }
+      { shouldPlay: true, positionMillis: 0 } // Added 0 to position millis
     );
     setSong(newSound);
     setIsPlaying(true);
@@ -75,14 +75,14 @@ const CurrentPlayer = () => {
   };
 
   useEffect(() => {
-    loadAndPlaySound(); 
-
+    loadAndPlaySound();
+    
     return () => {
       if (song) {
-        song.unloadAsync(); 
+        song.unloadAsync();
       }
     };
-  }, [Playing.songUrl]); 
+  }, [Playing.songUrl]);
 
   const seekForward = async () => {
     if (song) {
@@ -92,12 +92,11 @@ const CurrentPlayer = () => {
     }
   };
 
-
   const seekBackward = async () => {
     if (song) {
       const newPosition = Math.max(0, positionMillis - 5000); // so that not going below 0
       await song.setPositionAsync(newPosition);
-      setPositionMillis(newPosition); 
+      setPositionMillis(newPosition);
     }
   };
 
@@ -112,29 +111,24 @@ const CurrentPlayer = () => {
         />
       </View>
       <View style={{ flexDirection: "row", backgroundColor: "gray" }}>
-        <TouchableOpacity onPress={OpenPage} style={{ flexDirection: "row" }}>
+        <TouchableOpacity
+          onPress={OpenPage}
+          style={styles.imageAndTextContainer}
+        >
           <Image
             source={{ uri: Playing.imageUrl }}
             style={{ height: hp(8), width: hp(8) }}
           />
-          <View style={{ padding: 10, overflow: "hidden" }}>
+          <View style={styles.textContainer}>
             <MovingText
               text={Playing.songTitle}
               animatedThreshold={15}
               style={styles.title}
             />
-            <Text style={{ fontSize: hp(2), color: Colors.textSecndary }}>
-              {Playing.artist}
-            </Text>
+            <Text style={styles.artistText}>{Playing.artist}</Text>
           </View>
         </TouchableOpacity>
-        <View
-          style={{
-            flexDirection: "row",
-            marginTop: 20,
-            gap: 16,
-          }}
-        >
+        <View style={styles.buttonContainer}>
           <TouchableOpacity onPress={seekBackward}>
             <AntDesign
               name="stepbackward"
@@ -178,5 +172,32 @@ const styles = StyleSheet.create({
     fontSize: hp(2),
     fontWeight: "bold",
     color: Colors.textPrimary,
+  },
+  buttonContainer: {
+    width: wp(25), // Set a fixed width for the button container
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-around", // Evenly space the buttons
+    marginEnd: 10,
+  },
+  playerContainer: {
+    flexDirection: "row",
+    backgroundColor: "gray",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  imageAndTextContainer: {
+    flexDirection: "row",
+    flex: 1,
+  },
+  textContainer: {
+    padding: 10,
+    overflow: "hidden",
+    flex: 1,
+  },
+
+  artistText: {
+    fontSize: hp(2),
+    color: Colors.textSecndary,
   },
 });

@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { useContext } from "react";
 import { currentSongContext } from "@/context/context";
 import { Ionicons, AntDesign } from "@expo/vector-icons";
+import { useDispatch, UseDispatch, useSelector } from "react-redux";
+import { addtoLike, removeFromLike } from "@/redux/LikedSlice";
 import { Image } from "expo-image";
 import { useSharedValue } from "react-native-reanimated";
 import { Slider } from "react-native-awesome-slider";
@@ -16,6 +18,7 @@ import {
   widthPercentageToDP,
   widthPercentageToDP as wp,
 } from "react-native-responsive-screen";
+import { RootState } from "@/redux/store";
 
 const PlayerScreen = () => {
   const {
@@ -25,15 +28,19 @@ const PlayerScreen = () => {
     positionMillis,
     setPositionMillis,
   } = useContext(currentSongContext);
-  const [pause, setPause] = useState<boolean>(true);
   const [liked, isLiked] = useState<boolean>(false);
   const [Sound, setSound] = useState<any>(null);
-
+  const dispatch = useDispatch();
   const [durationMillis, setDurationMillis] = useState<number>(0);
 
   const progress = useSharedValue(0);
   const min = useSharedValue(0);
   const max = useSharedValue(1);
+
+  const { likedSongs } = useSelector((state: RootState) => state.likedSong);
+  const isSongLiked = likedSongs.some(
+    (song) => song.title === Playing.songTitle
+  );
 
   const playSound = async () => {
     if (Sound) {
@@ -67,6 +74,20 @@ const PlayerScreen = () => {
       setIsPlaying(true);
     }
   };
+  const handleLikeToggle = () => {
+    if (isSongLiked) {
+      dispatch(removeFromLike(Playing.songTitle));
+    } else {
+      dispatch(
+        addtoLike({
+          songUrl: Playing.songUrl,
+          title: Playing.songTitle,
+          artwork: Playing.imageUrl,
+          artist: Playing.artist,
+        })
+      );
+    }
+  };
 
   useEffect(() => {
     playSound();
@@ -90,18 +111,17 @@ const PlayerScreen = () => {
 
   const seekForward = async () => {
     if (Sound) {
-      const newPosition = positionMillis + 5000; 
+      const newPosition = positionMillis + 5000;
       await Sound.setPositionAsync(newPosition);
-      setPositionMillis(newPosition); // Update shared state
+      setPositionMillis(newPosition); 
     }
   };
 
-
   const seekBackward = async () => {
     if (Sound) {
-      const newPosition = Math.max(0, positionMillis - 5000); 
+      const newPosition = Math.max(0, positionMillis - 5000);
       await Sound.setPositionAsync(newPosition);
-      setPositionMillis(newPosition); 
+      setPositionMillis(newPosition);
     }
   };
   return (
@@ -144,10 +164,10 @@ const PlayerScreen = () => {
         <View>
           <TouchableOpacity
             style={{ marginTop: 5, marginLeft: 20 }}
-            onPress={() => isLiked(!liked)}
+            onPress={handleLikeToggle}
           >
             <Ionicons
-              name={liked ? "heart" : "heart-outline"}
+              name={isSongLiked ? "heart" : "heart-outline"}
               size={44}
               color="white"
             />
@@ -181,7 +201,12 @@ const PlayerScreen = () => {
         }}
       >
         <TouchableOpacity>
-          <AntDesign name="stepbackward" size={44} color={Colors.iconPrimary}  onPress={seekBackward}/>
+          <AntDesign
+            name="stepbackward"
+            size={44}
+            color={Colors.iconPrimary}
+            onPress={seekBackward}
+          />
         </TouchableOpacity>
         <TouchableOpacity onPress={togglePlayPause}>
           {isPlaying ? (
@@ -228,4 +253,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginLeft: 60,
   },
+
 });

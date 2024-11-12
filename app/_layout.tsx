@@ -1,8 +1,9 @@
 import { Stack } from "expo-router";
 import { useEffect , useState } from "react";
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import TrackPlayer from "react-native-track-player";
 import { currentSongContext } from "@/context/context";
+import { Provider } from "react-redux";
+import {store} from "../redux/store"
 
 interface SongInfo {
   imageUrl: string;
@@ -21,6 +22,7 @@ export default function RootLayout() {
   const [isPlaying, setIsPlaying] = useState(false);
 
   return (
+    <Provider store={store}>
     <currentSongContext.Provider value={{ Playing, setPlaying , positionMillis ,  setPositionMillis , isPlaying , setIsPlaying  }}>
     <GestureHandlerRootView style={{ flex: 1 }}>
     <Stack>
@@ -31,5 +33,6 @@ export default function RootLayout() {
     </Stack>
     </GestureHandlerRootView>
     </currentSongContext.Provider>
+    </Provider>
   );
 }
